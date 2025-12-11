@@ -18,7 +18,14 @@ def chebyshev_nodes(n: int = 10) -> np.ndarray | None:
         (np.ndarray): Wektor węzłów Czebyszewa (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(n, int):
+        return None
+    nodes = []  
+    for i in range(0, n):
+        nodes.append(np.cos((i*np.pi)/(n-1)))
+    x = np.array(nodes)
+    x = sorted(x, reverse = True)
+    return x
 
 
 def bar_cheb_weights(n: int = 10) -> np.ndarray | None:
@@ -31,7 +38,17 @@ def bar_cheb_weights(n: int = 10) -> np.ndarray | None:
         (np.ndarray): Wektor wag dla węzłów Czebyszewa (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(n, int):
+        return None
+    weights = []
+    for j in range(0, n):
+        if j == 0 or j == n-1:
+            weights.append((-1)**j * (1/2))
+        else:
+            weights.append((-1)**j * 1)
+    x = np.array(weights)
+    return x
+    
 
 
 def barycentric_inte(
@@ -52,7 +69,24 @@ def barycentric_inte(
         (np.ndarray): Wektor wartości funkcji interpolującej (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not all(isinstance(arr, np.ndarray) for arr in [xi, yi, wi, x]):
+        return None
+    
+    if not (len(xi) == len(yi) == len(wi)):
+        return None
+    
+    if not (xi.shape == yi.shape == wi.shape):
+        return None  
+
+    dist = x[:, None] - xi  
+    hits = (dist == 0)
+    dist[hits] = 1.0 
+    w = wi / dist
+    res = np.sum(w * yi, axis=1) / np.sum(w, axis=1)
+    ix, im = np.where(hits)
+    res[ix] = yi[im]
+    return res
+
 
 
 def L_inf(
@@ -71,4 +105,9 @@ def L_inf(
         (float): Wartość normy L-nieskończoność.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not all(isinstance(arr, int | float | list | np.ndarray) for arr in[xr,x]):
+        return None
+    x1 = np.array(xr)
+    x2 = np.array(x)
+    return np.max(np.abs(x1-x2))
+
